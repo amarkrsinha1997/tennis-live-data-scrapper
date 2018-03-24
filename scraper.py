@@ -155,7 +155,7 @@ def getStats(matchId, eventTitle, matchTitle):
 	# Gets the bs4 object or the scarpping the stats 	
 	stats = bs4.BeautifulSoup(drivers[eventTitle]['driver'].page_source,'html.parser')
 
-	trying to getthe data ofthe player
+	# trying to getthe data ofthe player
 	#Getting the playerNames
 	try:
 		leftPlayer = stats.find(class_='left ellipsis-simple').get_text()
@@ -258,7 +258,16 @@ def start():
 		eventTitles = []
 		matchTitles = []
 		#Scrapping
-		allEvents = driver.find_elements_by_class_name('category-container')
+		try:
+			allEvents = driver.find_elements_by_class_name('category-container')	
+		except Exception as e:
+			driver.refresh()
+			allEvents = driver.find_elements_by_class_name('category-container')	
+		else:
+			print("Can't find any match")
+			continue
+
+	
 
 		#Scrapping the data of eacch Tournament
 		for event in allEvents:
@@ -300,7 +309,7 @@ def start():
 				continue
 		
 		#Checks if any match has ended after every one hour so if can close the tab bor window for it.
-		if (datetime.now() - checktime).seconds>3600:
+		if (datetime.now() - checktime).seconds > 1800:
 			print("Checking to kill")
 
 			for event in drivers.keys():
@@ -314,6 +323,11 @@ def start():
 									driverClose.switch_to_window(tab)
 									print('Closing a tab')
 									driverClose.close()
+									del oddsDict[match]
+									del scores[match]
+							del drivers[event]
+							del statistic[event]	
+							
 					else:
 						for match in drivers[event]['tabs'].keys():
 							if not match in matchTitles:
@@ -323,8 +337,12 @@ def start():
 									driverClose.switch_to_window(tab)
 									print('Closing a tab')
 									driverClose.close()
+									del drivers[event]['tabs'][match]
+									del statistic[event][match]
+									del oddsDict[match]
+									del scores[match]
 				except Exception as e:
-					print (	)
+					print('Some error')
 					continue 
 				
 			checktime = datetime.now()
