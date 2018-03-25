@@ -74,7 +74,10 @@ def appendInCsv(playerName, odds, score,  leftData, rightData , eventTitle, fiel
 		#writing for the writer
 
 
+
 		csvWriter.writerow(['Event Detail : ', eventTitle])
+
+		# dots indicator
 		if indicator == 1:
 			csvWriter.writerow(['Players Name : ', playerName[0] + ' (dot) ', playerName[1]])
 		elif indicator == 2:
@@ -227,6 +230,9 @@ def getMatchDetails(match):
 	playerName = [name.text for name in match.find_elements_by_class_name('live-today-member-name')]
 	score = match.find_element_by_class_name('result-row').text
 	matchTitle = playerName[0]+' vs ' + playerName[1]
+	
+
+	# ****************dot indicator******************
 	indicator = None
 	allIndicatorTags = match.find_elements_by_class_name('sport-indicator')
 	try:
@@ -237,6 +243,8 @@ def getMatchDetails(match):
 		indicator=2
 	else:
 		pass
+	# *************************************************
+
 
 	#Getting the last score to check if the score has changed or not
 	isOddChange = False
