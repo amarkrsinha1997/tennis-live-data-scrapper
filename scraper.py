@@ -57,7 +57,7 @@ def getFile(fileName, eventTitle):
 
 
 # appendind data to csv file 
-def appendInCsv(playerName, odds, score,  leftData, rightData , eventTitle, fields):
+def appendInCsv(playerName, odds, score,  leftData, rightData , eventTitle, fields, , indicator):
 	print("Appening in CSV File\n\n\n")
 	# Creating the file inside the folder 
 	fileName = ' and '.join(playerName[0].split('/')) + ' vs ' + ' and '.join(playerName[1].split('/')) + '.csv'
@@ -75,7 +75,14 @@ def appendInCsv(playerName, odds, score,  leftData, rightData , eventTitle, fiel
 
 
 		csvWriter.writerow(['Event Detail : ', eventTitle])
-		csvWriter.writerow(['Players Name : ', playerName[0], playerName[1]])
+		if indicator == 1:
+			csvWriter.writerow(['Players Name : ', playerName[0] + ' (dot) ', playerName[1]])
+		elif indicator == 2:
+			csvWriter.writerow(['Players Name : ', playerName[0], playerName[1] + ' (dot) '])
+		else:
+			csvWriter.writerow(['Players Name : ', playerName[0], playerName[1]])
+
+
 		csvWriter.writerow([''])
 		csvWriter.writerow([''])
 
@@ -220,6 +227,16 @@ def getMatchDetails(match):
 	playerName = [name.text for name in match.find_elements_by_class_name('live-today-member-name')]
 	score = match.find_element_by_class_name('result-row').text
 	matchTitle = playerName[0]+' vs ' + playerName[1]
+	indicator = None
+	allIndicatorTags = match.find_elements_by_class_name('sport-indicator')
+	try:
+		allIndicatorTags[0].find_element_by_tag_name('img')
+		indicator=1
+	except:
+		allIndicatorTags[1].find_element_by_tag_name('img')
+		indicator=2
+	else:
+		pass
 
 	#Getting the last score to check if the score has changed or not
 	isOddChange = False
@@ -248,7 +265,7 @@ def getMatchDetails(match):
 		isOddChange = True
 
 
-	return matchId, playerName, score,  odds, isOddChange, isScoreChange
+	return matchId, playerName, score,  odds, isOddChange, isScoreChange, indicator
 
 
 def start():
@@ -264,7 +281,8 @@ def start():
 			driver.refresh()
 			allEvents = driver.find_elements_by_class_name('category-container')	
 		else:
-			print("Can't find any match")
+			print("Can't find any match\nSleeping for 30 sec! till any match starts...")
+			time.sleep(30)
 			continue
 
 	
@@ -281,7 +299,7 @@ def start():
 				for match in allMatches:
 					#scraping the details
 					try:
-						matchId, playerName, score,  odds, isOddChange, isScoreChange= getMatchDetails(match)
+						matchId, playerName, score,  odds, isOddChange, isScoreChange, indicator = getMatchDetails(match)
 					except:
 						continue
 					matchTitle = playerName[0]+' vs ' + playerName[1]
@@ -300,7 +318,7 @@ def start():
 					#checking if statistic or score or odd any of them has change or not.
 					if isStatsChange or isScoreChange or isOddChange:
 						#Saving the data in CSV
-						appendInCsv(playerName, odds, score, leftData, rightData, eventTitle, fields)
+						appendInCsv(playerName, odds, score, leftData, rightData, eventTitle, fields, indicator)
 					#Updating the last score
 					scores[matchTitle] = score
 					oddsDict[matchTitle] = odds
