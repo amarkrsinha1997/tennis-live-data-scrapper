@@ -5,7 +5,7 @@ bs4 for a client runs on python-3.
 ### To try it out type:
 ```
 pip install -r requirements.txt
-python3 scrapper.py
+python3 scrapper_final.py
 
 ```
 It creates a different folder for each Tournament.
